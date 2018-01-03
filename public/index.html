@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Example of the Authorization Code flow with Spotify</title>
+    <title>Authenticate to Spotify and Search for Tracks</title>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <style type="text/css">
       #login, #loggedin {
@@ -19,7 +19,7 @@
   <body>
     <div class="container">
       <div id="login">
-        <h1>This is an example of the Authorization Code flow.</h1>
+        <h1>Login in  with Spotify to access Perdita</h1>
         <a href="/login" class="btn btn-primary">Log in with Spotify</a>
       </div>
       <div id="loggedin">
@@ -40,15 +40,28 @@
         <div class="media-body">
           <dl class="dl-horizontal">
             <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
-            <dt>Id</dt><dd>{{id}}</dd>
-            <dt>Email</dt><dd>{{email}}</dd>
-            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
-            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
-            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
-            <dt>Country</dt><dd>{{country}}</dd>
+             <form class="search">
+              <input type="search" name="track" placeholder="Search For a Track...">
+              <input id="search" type="submit" value="Submit">
+            </form>
+
           </dl>
         </div>
       </div>
+      <script type="text/javascript">
+      // (function() {
+      //     document.getElementById('search').addEventListener('click', function(){
+      //       $.ajax({
+      //         url: 'https://api.spotify.com/v1/search?q=kendrick%20lamar&type=artist',
+      //         headers: {
+      //           'Authorization': 'Bearer' + access_token
+      //         }
+      //       }).done(function(data){
+      //         console.log(data);
+      //       })
+      //     })
+      //   }]
+    </script>
     </script>
 
     <script id="oauth-template" type="text/x-handlebars-template">
@@ -134,9 +147,17 @@
               });
             });
           }, false);
-        }
+
+    
+      }
       })();
+    </script>
+    <script type="text/javascript">
+                $( "#search" ).click(function() {
+                  $.ajax({
+                    url: '/search'
+                  })
+                })
     </script>
   </body>
 </html>
-

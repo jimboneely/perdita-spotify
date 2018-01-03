@@ -11,6 +11,8 @@ var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+var axios = require('axios');
+
 
 var client_id = '2ae33733b5514b60beceeed3e469d2ec'; // Your client id
 var client_secret = 'e2224aa93b4142b0bb086d85ad0600a0'; // Your secret
@@ -21,6 +23,9 @@ var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
  * @param  {number} length The length of the string
  * @return {string} The generated string
  */
+
+var access_token;
+
 var generateRandomString = function(length) {
   var text = '';
   var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -87,7 +92,7 @@ app.get('/callback', function(req, res) {
     request.post(authOptions, function(error, response, body) {
       if (!error && response.statusCode === 200) {
 
-        var access_token = body.access_token,
+            access_token = body.access_token,
             refresh_token = body.refresh_token;
 
         var options = {
@@ -140,6 +145,27 @@ app.get('/refresh_token', function(req, res) {
     }
   });
 });
+
+app.get('/search', function(req, res){
+
+    axios.get('https://api.spotify.com/v1/search?q=These%20Walls&type=track',{
+      headers: {'Authorization': 'Bearer ' + access_token},
+        }).then(function(res){
+          var trackIDs = [];
+          var items = res.data.tracks.items
+          for (var i = 0; i < items.length; i++) {
+            // trackIDs.push(items[i].id)
+            console.log(items);
+            
+          }
+          console.log(trackIDs)
+
+        }).catch(function (error) {
+            console.log(error);
+        });
+})
+
+
 
 console.log('Listening on 8888');
 app.listen(8888);
