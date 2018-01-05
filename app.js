@@ -12,6 +12,7 @@ var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 var axios = require('axios');
+var bodyParser = require("body-parser");
 
 
 var client_id = '2ae33733b5514b60beceeed3e469d2ec'; // Your client id
@@ -24,7 +25,7 @@ var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
  * @return {string} The generated string
  */
 
-var access_token;
+// var access_token;
 
 var generateRandomString = function(length) {
   var text = '';
@@ -42,6 +43,7 @@ var app = express();
 
 app.use(express.static(__dirname + '/public'))
    .use(cookieParser());
+// require("./routes/spotifyRoutes")(app);
 
 app.get('/login', function(req, res) {
 
@@ -122,6 +124,21 @@ app.get('/callback', function(req, res) {
   }
 });
 
+app.get('/search/:song', function(req, res) {
+var access_token = req.headers.access_tokens;
+if (req.params.song) {
+  var options = {
+    url: 'https://api.spotify.com/v1/search?q='+req.params.song+'&type=track&market=US&offset=20&limit=5',
+    headers: { 'Authorization': 'Bearer ' + access_token },
+    json: true
+  };
+  // use the access token to access the Spotify Web API
+  request.get(options, function(error, response, body) {
+    console.log(body);
+  });
+}
+})
+
 app.get('/refresh_token', function(req, res) {
 
   // requesting access token from refresh token
@@ -146,24 +163,24 @@ app.get('/refresh_token', function(req, res) {
   });
 });
 
-app.get('/search', function(req, res){
-
-    axios.get('https://api.spotify.com/v1/search?q=These%20Walls&type=track',{
-      headers: {'Authorization': 'Bearer ' + access_token},
-        }).then(function(res){
-          var trackIDs = [];
-          var items = res.data.tracks.items
-          for (var i = 0; i < items.length; i++) {
-            // trackIDs.push(items[i].id)
-            console.log(items);
-            
-          }
-          console.log(trackIDs)
-
-        }).catch(function (error) {
-            console.log(error);
-        });
-})
+// app.get('/search/:song', function(req, res){
+//   if (req.params.song) {
+//     axios.get('https://api.spotify.com/v1/search?q='+req.params.song+'&type=track',{
+//       headers: {'Authorization': 'Bearer ' + access_token},
+//         }).then(function(res){
+//           var trackIDs = [];
+//           var items = res.data.tracks.items
+//           for (var i = 0; i < items.length; i++) {
+//             trackIDs.push(items[i].id)
+//
+//           }
+//           console.log(trackIDs)
+//
+//         }).catch(function (error) {
+//             console.log(error);
+//         });
+//       }
+// })
 
 
 

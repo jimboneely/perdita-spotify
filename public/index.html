@@ -27,12 +27,11 @@
         </div>
         <div id="oauth">
         </div>
-        <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
       </div>
     </div>
 
     <script id="user-profile-template" type="text/x-handlebars-template">
-      <h1>Logged in as {{display_name}}</h1>
+      <h1>Welcome to Perdita {{display_name}}!</h1>
       <div class="media">
         <div class="pull-left">
           <img class="media-object" width="150" src="{{images.0.url}}" />
@@ -40,40 +39,22 @@
         <div class="media-body">
           <dl class="dl-horizontal">
             <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
-             <form class="search">
-              <input type="search" name="track" placeholder="Search For a Track...">
-              <input id="search" type="submit" value="Submit">
-            </form>
-
+            <div class="form-row col-md-12">
+                <div class="col-md-5">
+                  <input type="input" id="song-name" class="form-control form-control-md" placeholder="Search for a Song...">
+                </div>
+                <div class="row-eq-height col-md-2">
+                  <input type="submit" value="Search!" id="search-btn" class="btn btn-block btn-md btn-primary" style="background-color:#EB6864;border-color:#EB6864">
+                </div>
+              </div>
           </dl>
         </div>
       </div>
-      <script type="text/javascript">
-      // (function() {
-      //     document.getElementById('search').addEventListener('click', function(){
-      //       $.ajax({
-      //         url: 'https://api.spotify.com/v1/search?q=kendrick%20lamar&type=artist',
-      //         headers: {
-      //           'Authorization': 'Bearer' + access_token
-      //         }
-      //       }).done(function(data){
-      //         console.log(data);
-      //       })
-      //     })
-      //   }]
-    </script>
-    </script>
-
-    <script id="oauth-template" type="text/x-handlebars-template">
-      <h2>oAuth info</h2>
-      <dl class="dl-horizontal">
-        <dt>Access token</dt><dd class="text-overflow">{{access_token}}</dd>
-        <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}></dd>
-      </dl>
     </script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="/view.js"></script>
     <script>
       (function() {
 
@@ -95,25 +76,18 @@
             userProfileTemplate = Handlebars.compile(userProfileSource),
             userProfilePlaceholder = document.getElementById('user-profile');
 
-        var oauthSource = document.getElementById('oauth-template').innerHTML,
-            oauthTemplate = Handlebars.compile(oauthSource),
-            oauthPlaceholder = document.getElementById('oauth');
-
         var params = getHashParams();
 
         var access_token = params.access_token,
             refresh_token = params.refresh_token,
             error = params.error;
+            localStorage.setItem('access_token', access_token);
+
 
         if (error) {
           alert('There was an error during the authentication');
         } else {
           if (access_token) {
-            // render oauth info
-            oauthPlaceholder.innerHTML = oauthTemplate({
-              access_token: access_token,
-              refresh_token: refresh_token
-            });
 
             $.ajax({
                 url: 'https://api.spotify.com/v1/me',
@@ -127,37 +101,28 @@
                   $('#loggedin').show();
                 }
             });
-          } else {
+            $("#search-btn").on("submit", function(event){
+              event.preventDefault();
+              var song = $("#song-name").val().trim();
+              console.log(song);
+
+              $.ajax({
+                  url: '/search/:song',
+                  headers: {
+                    'Authorization': 'Bearer ' + access_token
+                  },
+                  success: function(response) {
+                  console.log(response)
+                  }
+            });
+          }); } else {
               // render initial screen
               $('#login').show();
               $('#loggedin').hide();
           }
 
-          document.getElementById('obtain-new-token').addEventListener('click', function() {
-            $.ajax({
-              url: '/refresh_token',
-              data: {
-                'refresh_token': refresh_token
-              }
-            }).done(function(data) {
-              access_token = data.access_token;
-              oauthPlaceholder.innerHTML = oauthTemplate({
-                access_token: access_token,
-                refresh_token: refresh_token
-              });
-            });
-          }, false);
-
-    
       }
       })();
-    </script>
-    <script type="text/javascript">
-                $( "#search" ).click(function() {
-                  $.ajax({
-                    url: '/search'
-                  })
-                })
     </script>
   </body>
 </html>
