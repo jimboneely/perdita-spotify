@@ -1,5 +1,4 @@
 # Perdita
-Ranking of top 101 Spotify Songs
 
 ## Overview
 A full stack (MERN) app that allows users to use their Spotify accounts to search, rate and write comments. The 101 top-rated songs will be displayed on the list.
