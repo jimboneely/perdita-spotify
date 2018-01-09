@@ -1,188 +1,23 @@
-/**
- * This is an example of a basic node.js script that performs
- * the Authorization Code oAuth2 flow to authenticate against
- * the Spotify Accounts.
- *
- * For more information, read
- * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
- */
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
-var express = require('express'); // Express web server framework
-var request = require('request'); // "Request" library
-var querystring = require('querystring');
-var cookieParser = require('cookie-parser');
-var axios = require('axios');
-var bodyParser = require("body-parser");
+const app = express();
+const routes = require("./routes");
+const PORT = process.env.PORT || 3001;
 
+// uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
-var client_id = '2ae33733b5514b60beceeed3e469d2ec'; // Your client id
-var client_secret = 'e2224aa93b4142b0bb086d85ad0600a0'; // Your secret
-var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+app.use(express.static("client/build"));
+app.use(routes);
 
-/**
- * Generates a random string containing numbers and letters
- * @param  {number} length The length of the string
- * @return {string} The generated string
- */
-
-// var access_token;
-
-var generateRandomString = function(length) {
-  var text = '';
-  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (var i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-};
-
-var stateKey = 'spotify_auth_state';
-
-var app = express();
-
-app.use(express.static(__dirname + '/public'))
-   .use(cookieParser());
-// require("./routes/spotifyRoutes")(app);
-
-app.get('/login', function(req, res) {
-
-  var state = generateRandomString(16);
-  res.cookie(stateKey, state);
-
-  // your application requests authorization
-  var scope = 'user-read-private user-read-email';
-  res.redirect('https://accounts.spotify.com/authorize?' +
-    querystring.stringify({
-      response_type: 'code',
-      client_id: client_id,
-      scope: scope,
-      redirect_uri: redirect_uri,
-      state: state
-    }));
+app.listen(PORT, function() {
+    console.log(`🌎 ==> Server now on port ${PORT}!`);
 });
-
-app.get('/callback', function(req, res) {
-
-  // your application requests refresh and access tokens
-  // after checking the state parameter
-
-  var code = req.query.code || null;
-  var state = req.query.state || null;
-  var storedState = req.cookies ? req.cookies[stateKey] : null;
-
-  if (state === null || state !== storedState) {
-    res.redirect('/#' +
-      querystring.stringify({
-        error: 'state_mismatch'
-      }));
-  } else {
-    res.clearCookie(stateKey);
-    var authOptions = {
-      url: 'https://accounts.spotify.com/api/token',
-      form: {
-        code: code,
-        redirect_uri: redirect_uri,
-        grant_type: 'authorization_code'
-      },
-      headers: {
-        'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-      },
-      json: true
-    };
-
-    request.post(authOptions, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
-
-            access_token = body.access_token,
-            refresh_token = body.refresh_token;
-
-        var options = {
-          url: 'https://api.spotify.com/v1/me',
-          headers: { 'Authorization': 'Bearer ' + access_token },
-          json: true
-        };
-
-        // use the access token to access the Spotify Web API
-        request.get(options, function(error, response, body) {
-          console.log(body);
-        });
-
-        // we can also pass the token to the browser to make requests from there
-        res.redirect('/#' +
-          querystring.stringify({
-            access_token: access_token,
-            refresh_token: refresh_token
-          }));
-      } else {
-        res.redirect('/#' +
-          querystring.stringify({
-            error: 'invalid_token'
-          }));
-      }
-    });
-  }
-});
-
-app.get('/search/:song', function(req, res) {
-var access_token = req.headers.access_tokens;
-if (req.params.song) {
-  var options = {
-    url: 'https://api.spotify.com/v1/search?q='+req.params.song+'&type=track&market=US&offset=20&limit=5',
-    headers: { 'Authorization': 'Bearer ' + access_token },
-    json: true
-  };
-  // use the access token to access the Spotify Web API
-  request.get(options, function(error, response, body) {
-    console.log(body);
-  });
-}
-})
-
-app.get('/refresh_token', function(req, res) {
-
-  // requesting access token from refresh token
-  var refresh_token = req.query.refresh_token;
-  var authOptions = {
-    url: 'https://accounts.spotify.com/api/token',
-    headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
-    form: {
-      grant_type: 'refresh_token',
-      refresh_token: refresh_token
-    },
-    json: true
-  };
-
-  request.post(authOptions, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
-      var access_token = body.access_token;
-      res.send({
-        'access_token': access_token
-      });
-    }
-  });
-});
-
-// app.get('/search/:song', function(req, res){
-//   if (req.params.song) {
-//     axios.get('https://api.spotify.com/v1/search?q='+req.params.song+'&type=track',{
-//       headers: {'Authorization': 'Bearer ' + access_token},
-//         }).then(function(res){
-//           var trackIDs = [];
-//           var items = res.data.tracks.items
-//           for (var i = 0; i < items.length; i++) {
-//             trackIDs.push(items[i].id)
-//
-//           }
-//           console.log(trackIDs)
-//
-//         }).catch(function (error) {
-//             console.log(error);
-//         });
-//       }
-// })
-
-
-
-console.log('Listening on 8888');
-app.listen(8888);
