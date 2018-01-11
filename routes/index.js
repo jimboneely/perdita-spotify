@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const router = express.Router();
 
 /* GET home page. */
-router.route("/", function(req, res) {
+router.route("/", (req, res) => {
     res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 

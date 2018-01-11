@@ -2,20 +2,21 @@ import React, {Component} from 'react';
 import './NavBar.css';
 import logo from './perdita-logo.png';
 
-// const NavBar = props => (
 class NavBar extends Component {
-    state = {
-        open: false
+
+    constructor(props) {
+        super(props);
+
+        this.toggleNavbar = this.toggleNavbar.bind(this);
+        this.state = {
+            collapsed: true
+        };
     }
 
-    toggleOpen() {
-        switch(this.state.open) {
-            case false: this.setState({open: true});
-            break;
-            case true:  this.setState({open: false});
-            break;
-            default: this.setState({open: false});
-        }
+    toggleNavbar() {
+        this.setState({
+            collapsed: !this.state.collapsed
+        });
     }
 
     render() {
@@ -24,7 +25,7 @@ class NavBar extends Component {
                 <a className="navbar-brand" href="/"><img alt="logo" src={logo}/></a>
 
                 <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-content" aria-controls="nav-content" aria-expanded="false" aria-label="Toggle navigation">
-                    <div className={this.state.open ? 'nav-icon open' : 'nav-icon'} onClick={() => this.toggleOpen()}>
+                    <div className={this.state.collapsed ? 'nav-icon' : 'nav-icon open'} onClick={this.toggleNavbar/* () => this.toggleOpen() */}>
                         <span></span>
                         <span></span>
                         <span></span>
