@@ -11,6 +11,7 @@ const App = () =>
         <NavBar />
         <Switch>
             <Route exact path="/" component={Home} />
+            {/* <Route exact path="/login" component={LogIn} /> */}
             <Route component={NoMatch} />
         </Switch>
     </div>

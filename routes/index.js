@@ -2,16 +2,12 @@ const express = require('express');
 const request = require('request');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
-const router = express.Router();
-
-/* GET home page. */
-router.route("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "./client/build/index.html"));
-});
+const router = require("express").Router();
+const apiRoutes = require("./api");
 
 const client_id = '2ae33733b5514b60beceeed3e469d2ec'; // Your client id
 const client_secret = 'e2224aa93b4142b0bb086d85ad0600a0'; // Your secret
-const redirect_uri = 'http://localhost:3001/callback'; // Your redirect uri
+const redirect_uri = 'http://localhost:3000/callback'; // Your redirect uri
 
 const generateRandomString = length => {
     let text = '';
@@ -24,7 +20,20 @@ const generateRandomString = length => {
 };
 const stateKey = 'spotify_auth_state';
 
-router.route('/login', (req, res) => {
+/* GET home page. */
+// router.route("/", (req, res) => {
+//     res.sendFile(path.join(__dirname, "./client/build/index.html"));
+// });
+
+router.get("/login", (req, res) => {
+    res.send(`login called`);
+});
+
+router.get('/api/test', (req, res) => res.json({message: 'test done'}));
+
+router.use('/api', apiRoutes);
+
+/* router.get('/login', (req, res) => {
     console.log(`login called`);
     let state = generateRandomString(16);
     res.cookie(stateKey, state);
@@ -100,6 +109,6 @@ router.route('/callback', (req, res) => {
             }
         });
     }
-});
+}); */
 
 module.exports = router;

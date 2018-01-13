@@ -25,7 +25,7 @@ class NavBar extends Component {
                 <a className="navbar-brand" href="/"><img alt="logo" src={logo}/></a>
 
                 <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-content" aria-controls="nav-content" aria-expanded="false" aria-label="Toggle navigation">
-                    <div className={this.state.collapsed ? 'nav-icon' : 'nav-icon open'} onClick={this.toggleNavbar/* () => this.toggleOpen() */}>
+                    <div className={this.state.collapsed ? 'nav-icon' : 'nav-icon open'} onClick={this.toggleNavbar}>
                         <span></span>
                         <span></span>
                         <span></span>
