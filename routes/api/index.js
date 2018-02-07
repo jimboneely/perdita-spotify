@@ -1,6 +1,8 @@
-const router = require("express").Router();
-const doSomethingRoute = require('./doSomething');
+const router = require('express').Router()
+// const commentRoutes = require('./comments')
+const spotifyRoutes = require('./spotify')
 
-router.use('/dosomething', doSomethingRoute);
+// router.use('/comments', commentRoutes)
+router.use('/spotify', spotifyRoutes)
 
-module.exports = router;
+module.exports = router

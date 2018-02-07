@@ -1,23 +1,15 @@
 import React, { Component } from "react";
-import Jimbo from '../../components/Jimbo';
 import LoginButton from '../../components/LoginButton';
 import axios from "axios";
 import API from "../../utils/API";
+import User from '../../utils/User'
 
 class Home extends Component {
     state = {
-    };
-
-    login() {
-        console.log(`login called`);
-        axios.get("/login", (req, res) => {
-            console.log(`axios sent`);
-        });
     }
 
-    testIt() {
-        console.log(`call testIt`);
-        API.doSomething().then(res => console.log(res));
+    login() {
+        User.login().then(res => console.log(res));
     }
     
     callApi = async() => {
@@ -27,16 +19,14 @@ class Home extends Component {
         if (response.status !== 200) throw Error(body.message);
     
         return body;
-    };
+    }
     
     render() {
         return (
-            <div>
-                <Jimbo />
+
                 <LoginButton 
-                    handleClick={this.testIt}
+                    handleClick={this.login}
                 />
-            </div>
         )
     }
 }

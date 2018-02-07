@@ -1,5 +1,7 @@
 import axios from "axios";
 
-export default {doSomething: function() {
-    return axios.get('/api/dosomething');
-}};
+export default {
+    login: () => {
+        return axios.get('/api/user/login');
+    }
+};
